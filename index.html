@@ -410,8 +410,8 @@
                 <td>${price}</td>
                 <td>${entry['Unit']||''}</td>
                 <td>${entry['MOQ']||''}</td>
-                <td><button onclick="addToCartPrompt('${encodeURIComponent(itemCode)}','${encodeURIComponent(entry['Variant Code']||'')}', '${encodeURIComponent(entry['Description']||'')}', '${encodeURIComponent(price)}')">Add to Cart</button>
-                    <a class='wa-link' target='_blank' href="https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent('Hi, I\'m interested in this tool:\nItem: '+(first['Item Name']||'')+'\nVariant Code: '+(entry['Variant Code']||'')+'\nDescription: '+(entry['Description']||'')+'\nPrice: '+price)}"><i class='fab fa-whatsapp'></i> Chat</a>
+                <td><button onclick="addToCartPrompt('${encodeURIComponent(itemCode)}','${encodeURIComponent(entry['Variant Code']||'')}', '${encodeURIComponent(entry['Description']||'')}', '${encodeURIComponent(price)}')">Add to Cart</button></td>
+                <td><a class='wa-link' target='_blank' href="https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent('Hi, I\'m interested in this tool:\nItem: '+(first['Item Name']||'')+'\nVariant Code: '+(entry['Variant Code']||'')+'\nDescription: '+(entry['Description']||'')+'\nPrice: '+price)}"><i class='fab fa-whatsapp'></i> Chat</a>
                 </td>
               </tr>
             `;
@@ -473,7 +473,89 @@
     function updateCartCount(){ const n = getCart().reduce((s,i)=>s+i.qty,0); document.getElementById('cart-count').innerText = n; }
 
     /* ---------------- PDF Export ---------------- */
-    async function downloadCartPDF(){ const cart = getCart(); if(cart.length===0){ alert('Cart empty'); return; }
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <script>  
+  async function downloadCartPDF() {
+  const cart = getCart();
+  if (cart.length === 0) {
+    alert('Cart is empty');
+    return;
+  }
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+
+  doc.setFontSize(14);
+  doc.text('SRI NEELKANTH IMPEX PVT. LTD. - Cart Quote', 14, 14);
+  doc.setFontSize(10);
+
+  // Prepare columns
+  const headers = [
+    ['Image', 'Item Name', 'Variant Code', 'Description', 'Price/Unit', 'Qty']
+  ];
+
+  // Convert images to base64 (for embedding)
+  const rows = await Promise.all(
+    cart.map(async (c) => {
+      let imgData = '';
+      try {
+        const imgUrl = c.img || 'https://via.placeholder.com/60?text=' + encodeURIComponent(c.itemCode);
+        const response = await fetch(imgUrl);
+        const blob = await response.blob();
+        imgData = await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result);
+          reader.readAsDataURL(blob);
+        });
+      } catch (e) {
+        console.error('Image load failed', e);
+      }
+
+      return [
+        { content: '', img: imgData }, // Placeholder for image
+        c.itemName || c.itemCode,
+        c.variantCode || '',
+        c.description || '',
+        c.price || '',
+        c.qty || ''
+      ];
+    })
+  );
+
+  // Use autoTable with didDrawCell for image placement
+  doc.autoTable({
+    startY: 22,
+    head: headers,
+    body: rows,
+    styles: {
+      fontSize: 9,
+      cellPadding: 3,
+      valign: 'middle',
+      halign: 'center'
+    },
+    columnStyles: {
+      0: { cellWidth: 22 }, // Image column width
+      1: { cellWidth: 38 },
+      2: { cellWidth: 25 },
+      3: { cellWidth: 45 },
+      4: { cellWidth: 25 },
+      5: { cellWidth: 15 }
+    },
+    didDrawCell: function (data) {
+      if (data.column.index === 0 && data.cell.raw && data.cell.raw.img) {
+        const dim = 16; // image size
+        const x = data.cell.x + (data.cell.width - dim) / 2;
+        const y = data.cell.y + (data.cell.height - dim) / 2;
+        doc.addImage(data.cell.raw.img, 'JPEG', x, y, dim, dim);
+      }
+    }
+  });
+
+  doc.save('cart-quote.pdf');
+}
+    
+    /*async function downloadCartPDF(){ const cart = getCart(); if(cart.length===0){ alert('Cart empty'); return; }
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF(); let y=12;
       doc.setFontSize(14); doc.text('SRI NEELKANTH IMPEX PVT. LTD. - Cart Quote',12,y); y+=8;
@@ -484,7 +566,7 @@
         doc.text(line,12,y); y+=6;
       });
       doc.save('cart-quote.pdf');
-    }
+    }*/
 
     /* ---------------- Cart Enquiry (WhatsApp) ---------------- */
     function openCartEnquiryModal(){ document.getElementById('cart-modal').style.display='flex'; }
