@@ -402,7 +402,7 @@
         <img src="${img}" alt="${itemCode}" class="detail-image"/>
         <p class="specs"><em>${first['Specs'] || ''}</em></p>
         <table>
-          <tr><th>Variant Code</th><th>Description</th><th>Price/Unit</th><th>Unit</th><th>MOQ</th><th>Actions</th></tr>
+          <tr><th>Variant Code</th><th>Description</th><th>Price/Unit</th><th>Unit</th><th>MOQ</th><th>Add To Cart</th><th>WhatsApp</th></tr>
           ${entries.reduce((unique,entry)=>{ if(!unique.some(e=>e['Variant Code']===entry['Variant Code'])) unique.push(entry); return unique; },[]).map(entry=>{
             const price = entry['Price/Unit']||'';
             return `
