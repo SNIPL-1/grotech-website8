@@ -490,7 +490,7 @@
   doc.text("SRI NEELKANTH IMPEX PVT. LTD. - Cart Quote", 14, 15);
 
   // Prepare table data
-  const tableColumn = ["S.No.", "Item", "Variant", "Qty", "Price"];
+  const tableColumn = ["S.No.", "Item", "Variant", "Description" , "Qty", "Price"];
   const tableRows = [];
 
   cart.forEach((c, idx) => {
@@ -498,6 +498,7 @@
       idx + 1,
       c.itemName || c.itemCode || "",
       c.variantCode || "",
+      c.description || "",
       c.qty || "",
       c.price || "",
     ]);
@@ -513,10 +514,11 @@
     styles: { fontSize: 10, cellPadding: 3 },
     columnStyles: {
       0: { halign: "center", cellWidth: 15 },
-      1: { cellWidth: 60 },
-      2: { cellWidth: 30 },
-      3: { halign: "center", cellWidth: 20 },
-      4: { halign: "right", cellWidth: 25 },
+      1: { cellWidth: 50 },
+      2: { cellWidth: 50 },
+      3: { halign: "center", cellWidth: 30 },
+      4: { halign: "center", cellWidth: 20 },
+      5: { halign: "center", cellWidth: 25 },
     },
   });
 
@@ -544,7 +546,7 @@
       if(!name||!mobile||!city){ alert('Please enter Name, Mobile and City'); return; }
       const cart = getCart(); if(cart.length===0){ alert('Cart is empty'); return; }
       let msg = `Enquiry from ${name} (City: ${city || 'N/A'})\nMobile: ${mobile}${email?('\nEmail: '+email):''}\n\nItems:`;
-      cart.forEach(c=>{ msg += `\n- ${c.itemName||c.itemCode} | Variant: ${c.variantCode} | Qty: ${c.qty} | Price: ${c.price}`; });
+      cart.forEach(c=>{ msg += `\n- ${c.itemName||c.itemCode} | Variant: ${c.variantCode} | Description: ${c.description} | Qty: ${c.qty} | Price: ${c.price}`; });
       const wa = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
       // Optionally store to sheet
       if(SHEET_WEBHOOK){ try{ fetch(SHEET_WEBHOOK,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'cart_enquiry',name,city,mobile,email,cart})}); }catch(e){ console.warn('sheet save failed',e); } }
