@@ -162,7 +162,7 @@
       <div style="max-width:600px; margin:20px auto; text-align:left;">
         <input id="enq-name" placeholder="Name *" required style="width:100%; padding:10px; margin:8px 0;"/>
         <input id="enq-mobile" placeholder="Mobile Number *" required style="width:100%; padding:10px; margin:8px 0;"/>
-        <input id="enq-city" placeholder="City" style="width:100%; padding:10px; margin:8px 0;"/>
+        <input id="enq-city" placeholder="City *" style="width:100%; padding:10px; margin:8px 0;"/>
         <input id="enq-email" placeholder="Email (Optional)" style="width:100%; padding:10px; margin:8px 0;"/>
         <textarea id="enq-requirements" placeholder="Your Requirements *" required style="width:100%; padding:10px; margin:8px 0; height:100px;"></textarea>
         <button onclick="sendEnquiry()" style="width:100%; padding:12px; background:#28a745; color:white; border:none; border-radius:4px; cursor:pointer;">Send Enquiry</button>
@@ -223,7 +223,7 @@
     <section id="enquiry" style="display:none;margin-top:12px">
       <div class="form-card">
         <h2>Send an Enquiry</h2>
-        <p>Enter details and your requirements. We will receive this as a WhatsApp message. (Optionally saved to a Google Sheet if you configure a webhook URL below.)</p>
+        <p>Enter details and your requirements. We will receive this as a WhatsApp message.</p>
         <div>
           <div class="form-row">
             <div class="col"><input id="enq-name" placeholder="Name (required)"/></div>
@@ -231,7 +231,7 @@
           </div>
           <div class="form-row">
             <div class="col"><input id="enq-mobile" placeholder="Mobile (required)"/></div>
-            <div class="col"><input id="enq-city" placeholder="City"/></div>
+            <div class="col"><input id="enq-city" placeholder="City (required)"/></div>
           </div>
           <div style="margin-bottom:8px"><textarea id="enq-requirements" placeholder="Enter your requirement / list of items..."></textarea></div>
           <div class="actions">
@@ -552,7 +552,7 @@
 
     /* ---------------- Enquiry Form ---------------- */
     function sendEnquiry(){ const name = document.getElementById('enq-name').value.trim(); const email = document.getElementById('enq-email').value.trim(); const mobile = document.getElementById('enq-mobile').value.trim(); const city = document.getElementById('enq-city').value.trim(); const req = document.getElementById('enq-requirements').value.trim();
-      if(!name||!mobile||!req){ alert('Please enter Name, Mobile and Requirements'); return; }
+      if(!name||!mobile||!city||!req){ alert('Please enter Name, Mobile, City and Requirements'); return; }
       const msg = `Enquiry from ${name} (City: ${city||'N/A'})\nMobile: ${mobile}${email?('\nEmail: '+email):''}\n\nRequirement:\n${req}`;
       // attempt to save
       if(SHEET_WEBHOOK){ try{ fetch(SHEET_WEBHOOK,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'enquiry',name,email,mobile,city,req})}); }catch(e){ console.warn('sheet save failed',e);} }
