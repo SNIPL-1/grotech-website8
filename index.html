@@ -332,7 +332,17 @@
       if(id==='products') renderCategories();
       if(id==='cart') renderCart();
     }
+    function navigateTo(sectionId) {
+      // Hide all sections
+      document.querySelectorAll("section").forEach(sec => sec.style.display = "none");
 
+      // Show the selected section
+      const target = document.getElementById(sectionId);
+      if (target) {
+        target.style.display = "block";
+        window.scrollTo({ top: target.offsetTop, behavior: "smooth" });
+      }
+    }
     /* ---------------- Breadcrumb ---------------- */
     function renderBreadcrumb(level){
       const breadcrumb = document.getElementById('breadcrumb');
