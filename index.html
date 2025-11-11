@@ -541,7 +541,7 @@
     function openCartEnquiryModal(){ document.getElementById('cart-modal').style.display='flex'; }
     function closeCartModal(){ document.getElementById('cart-modal').style.display='none'; }
     function sendCartEnquiry(){ const name = document.getElementById('cart-cust-name').value.trim(); const mobile = document.getElementById('cart-cust-mobile').value.trim(); const email = document.getElementById('cart-cust-email').value.trim(); const city = document.getElementById('cart-cust-city').value.trim();
-      if(!name||!mobile){ alert('Please enter Name and Mobile'); return; }
+      if(!name||!mobile||!city){ alert('Please enter Name, Mobile and City'); return; }
       const cart = getCart(); if(cart.length===0){ alert('Cart is empty'); return; }
       let msg = `Enquiry from ${name} (City: ${city || 'N/A'})\nMobile: ${mobile}${email?('\nEmail: '+email):''}\n\nItems:`;
       cart.forEach(c=>{ msg += `\n- ${c.itemName||c.itemCode} | Variant: ${c.variantCode} | Qty: ${c.qty} | Price: ${c.price}`; });
