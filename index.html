@@ -473,87 +473,56 @@
     function updateCartCount(){ const n = getCart().reduce((s,i)=>s+i.qty,0); document.getElementById('cart-count').innerText = n; }
 
     /* ---------------- PDF Export ---------------- */
-  
-  async function downloadCartPDF() {
+   async function downloadCartPDF() {
   const cart = getCart();
   if (cart.length === 0) {
-    alert('Cart is empty');
+    alert("Cart empty");
     return;
   }
 
   const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+  const doc = new jsPDF();
 
+  // Title
   doc.setFontSize(14);
-  doc.text('SRI NEELKANTH IMPEX PVT. LTD. - Cart Quote', 14, 14);
-  doc.setFontSize(10);
+  doc.text("SRI NEELKANTH IMPEX PVT. LTD. - Cart Quote", 14, 15);
 
-  // Prepare columns
-  const headers = [
-    ['Image', 'Item Name', 'Variant Code', 'Description', 'Price/Unit', 'Qty']
-  ];
+  // Prepare table data
+  const tableColumn = ["S.No.", "Item", "Variant", "Qty", "Price"];
+  const tableRows = [];
 
-  // Convert images to base64 (for embedding)
-  const rows = await Promise.all(
-    cart.map(async (c) => {
-      let imgData = '';
-      try {
-        const imgUrl = c.img || 'https://via.placeholder.com/60?text=' + encodeURIComponent(c.itemCode);
-        const response = await fetch(imgUrl);
-        const blob = await response.blob();
-        imgData = await new Promise((resolve) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result);
-          reader.readAsDataURL(blob);
-        });
-      } catch (e) {
-        console.error('Image load failed', e);
-      }
-
-      return [
-        { content: '', img: imgData }, // Placeholder for image
-        c.itemName || c.itemCode,
-        c.variantCode || '',
-        c.description || '',
-        c.price || '',
-        c.qty || ''
-      ];
-    })
-  );
-
-  // Use autoTable with didDrawCell for image placement
-  doc.autoTable({
-    startY: 22,
-    head: headers,
-    body: rows,
-    styles: {
-      fontSize: 9,
-      cellPadding: 3,
-      valign: 'middle',
-      halign: 'center'
-    },
-    columnStyles: {
-      0: { cellWidth: 22 }, // Image column width
-      1: { cellWidth: 38 },
-      2: { cellWidth: 25 },
-      3: { cellWidth: 45 },
-      4: { cellWidth: 25 },
-      5: { cellWidth: 15 }
-    },
-    didDrawCell: function (data) {
-      if (data.column.index === 0 && data.cell.raw && data.cell.raw.img) {
-        const dim = 16; // image size
-        const x = data.cell.x + (data.cell.width - dim) / 2;
-        const y = data.cell.y + (data.cell.height - dim) / 2;
-        doc.addImage(data.cell.raw.img, 'JPEG', x, y, dim, dim);
-      }
-    }
+  cart.forEach((c, idx) => {
+    tableRows.push([
+      idx + 1,
+      c.itemName || c.itemCode || "",
+      c.variantCode || "",
+      c.qty || "",
+      c.price || "",
+    ]);
   });
 
-  doc.save('cart-quote.pdf');
+  // Add table using autoTable plugin
+  doc.autoTable({
+    startY: 25,
+    head: [tableColumn],
+    body: tableRows,
+    theme: "grid",
+    headStyles: { fillColor: [41, 128, 185], textColor: 255, halign: "center" },
+    styles: { fontSize: 10, cellPadding: 3 },
+    columnStyles: {
+      0: { halign: "center", cellWidth: 15 },
+      1: { cellWidth: 60 },
+      2: { cellWidth: 30 },
+      3: { halign: "center", cellWidth: 20 },
+      4: { halign: "right", cellWidth: 25 },
+    },
+  });
+
+  // Save PDF
+  doc.save("cart-quote.pdf");
 }
-    
-    /*async function downloadCartPDF(){ const cart = getCart(); if(cart.length===0){ alert('Cart empty'); return; }
+
+   /* async function downloadCartPDF(){ const cart = getCart(); if(cart.length===0){ alert('Cart empty'); return; }
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF(); let y=12;
       doc.setFontSize(14); doc.text('SRI NEELKANTH IMPEX PVT. LTD. - Cart Quote',12,y); y+=8;
