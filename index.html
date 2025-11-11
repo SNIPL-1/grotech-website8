@@ -500,7 +500,7 @@
       c.variantCode || "",
       c.description || "",
       c.qty || "",
-      c.price || "",
+      (c.price || "").replace("₹", "INR "),
     ]);
   });
 
@@ -518,7 +518,7 @@
       2: { halign: "center", cellWidth: 25 },
       3: { cellWidth: 45 },
       4: { halign: "center", cellWidth: 20 },
-      5: { halign: "center", cellWidth: 25 },
+      5: { cellWidth: 25 },
     },
   });
 
